@@ -20,7 +20,7 @@ var Game = {
     	bindEventToScreen('keypress');
 	},
 
-	getDisplay; function() {
+	getDisplay: function() {
 		return this._display;
 	},
 
@@ -28,6 +28,7 @@ var Game = {
 		if (this._currentScreen !== null) {
 			this._currentScreen.exit();
 		}
+		this.getDisplay().clear();
 		this._currentScreen = screen;
 		if(this._currentScreen) {
 			this._currentScreen.enter();
