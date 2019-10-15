@@ -1,24 +1,52 @@
+var Game = {
+	_display: null,
+	_currentScreen: null,
+	init: function() {
+		//initialization goes here
+		this._display = new ROT.Display({width:120, height:40});
+		var game = this;
+		var bindEventToScreen = function(event) {
+			window.addEventListener(event, function(e) {
+				if (game._currentScreen !== null) {
+					//send event type and data to the screen
+					game._currentScreen.handleInput(event, e);
+				}
+			});
+		}
+
+		// Bind keyboard input events
+    	bindEventToScreen('keydown');
+    	bindEventToScreen('keyup');
+    	bindEventToScreen('keypress');
+	},
+
+	getDisplay; function() {
+		return this._display;
+	},
+
+	switchScreen: function(screen) {
+		if (this._currentScreen !== null) {
+			this._currentScreen.exit();
+		}
+		this._currentScreen = screen;
+		if(this._currentScreen) {
+			this._currentScreen.enter();
+			this._currentScreen.render(this._display);
+		}
+	}
+}
+
+
+
 window.onload = function() {
 	// Check if rot.js can work on this browser
-	
-		// Create a display 80 characters wide and 20 characters tall
-		var display = new ROT.Display({width:120, height:40});
-		var container = display.getContainer();
-		// Add the container to our HTML page
-		document.body.appendChild(container);
-		var foreground, background, colors;
-		for (var i = 0; i < 25; i++) {
-			// Calculate the foreground color, getting progressively darker
-			// and the background color, getting progressively lighter.
-			foreground = ROT.Color.toRGB([255 - (i*10),
-			                              255 - (i*10),
-			                              255 - (i*10)]);
-			background = ROT.Color.toRGB([i*10, i*10, i*10]);
-			// Create the color format specifier.
-			colors = "%c{" + foreground + "}%b{" + background + "}";
-			// Draw the text two columns in and at the row specified
-			// by i
-			display.drawText(2, i, colors + "Hello, world!");
-		}
-	
+	if (!ROT.isSupported()) {
+        alert("The rot.js library isn't supported by your browser.");
+    } else {
+        // Initialize the game
+        Game.init();
+        // Add the container to our HTML page
+        document.body.appendChild(Game.getDisplay().getContainer());
+        Game.switchScreen(Game.Screen.startScreen);
+    }
 }
