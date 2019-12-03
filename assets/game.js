@@ -1,27 +1,40 @@
 var Game = {
 	_display: null,
 	_currentScreen: null,
+	_screenWidth: 120,
+	_screenHeight: 40,
 	init: function() {
 		//initialization goes here
-		this._display = new ROT.Display({width:120, height:40});
+		this._display = new ROT.Display({width: this._screenWidth,
+                                     height: this._screenHeight});
 		var game = this;
 		var bindEventToScreen = function(event) {
 			window.addEventListener(event, function(e) {
 				if (game._currentScreen !== null) {
 					//send event type and data to the screen
 					game._currentScreen.handleInput(event, e);
+					//clear screen
+					game._display.clear();
+					//re-render
+					game._currentScreen.render(game._display);
 				}
 			});
 		}
 
 		// Bind keyboard input events
     	bindEventToScreen('keydown');
-    	bindEventToScreen('keyup');
-    	bindEventToScreen('keypress');
+    	//bindEventToScreen('keyup');
+    	//bindEventToScreen('keypress');
 	},
 
 	getDisplay: function() {
 		return this._display;
+	},
+	getScreenWidth: function() {
+		return this._screenWidth;
+	},
+	getScreenHeight: function () {
+		return this._screenHeight;
 	},
 
 	switchScreen: function(screen) {

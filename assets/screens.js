@@ -42,17 +42,22 @@ Game.Screen.welcomeScreen = {
 //define play screen
 
 Game.Screen.playScreen = {
+	_map: null,
+	_centerX: 0,
+	_centerY: 0,
 	enter: function() {
 		var map = [];
-		for (var x = 0; x < 120; x++) {
+		var mapWidth = 500;
+        var mapHeight = 500;
+		for (var x = 0; x < mapWidth; x++) {
 			//create nested array for y vals
 			map.push([]);
 			//add all tiles
-			for (var y = 0; y < 40; y++) {
+			for (var y = 0; y < mapHeight; y++) {
 				map[x].push(Game.Tile.nullTile);
 			}
 		}
-		var generator = new ROT.Map.Cellular(120, 40);
+		var generator = new ROT.Map.Cellular(mapWidth, mapHeight);
 		generator.randomize(0.5);
 
 		var totalIterations = 3;
@@ -74,18 +79,34 @@ Game.Screen.playScreen = {
 	},
 	exit: function() { console.log("Exited play screen."); },
 	render: function(display) {
+		var screenWidth = Game.getScreenWidth();
+		var screenHeight = Game.getScreenHeight();
+		var topLeftX = Math.max(0, this._centerX - (screenWidth / 2));
+		topLeftX= Math.min(topLeftX, this._map.getWidth() - screenWidth);
+		var topLeftY = Math.max(0, this._centerY - (screenHeight / 2));
+		topLeftY = Math.min(topLeftY, this._map.getHeight() - screenHeight);
 
 		//iterate map cells
-		for (var x = 0; x < this._map.getWidth(); x++) {
-			for (var y = 0; y < this._map.getHeight(); y++) {
+		for (var x = topLeftX; x < topLeftX + screenWidth; x++) {
+			for (var y = topLeftY; y < topLeftY + screenHeight; y++) {
 				//fetch correct glyph and draw
 				var glyph = this._map.getTile(x, y).getGlyph();
-				display.draw(x, y,
+				display.draw(
+					x - topLeftX,
+					y - topLeftY,
 					glyph.getChar(),
 					glyph.getForeground(),
 					glyph.getBackground());
 			}
+
 		}
+		// Render the cursor
+        display.draw(
+            this._centerX - topLeftX, 
+            this._centerY - topLeftY,
+            '@',
+            'white',
+            'black');
 		
 	},
 	handleInput: function(inputType, inputData) {
@@ -98,7 +119,27 @@ Game.Screen.playScreen = {
             } else if (inputData.keyCode === ROT.VK_ESCAPE) {
                 Game.switchScreen(Game.Screen.loseScreen);
             }
+            // Movement
+            if (inputData.keyCode === ROT.VK_LEFT) {
+                this.move(-1, 0);
+            } else if (inputData.keyCode === ROT.VK_RIGHT) {
+                this.move(1, 0);
+            } else if (inputData.keyCode === ROT.VK_UP) {
+                this.move(0, -1);
+            } else if (inputData.keyCode === ROT.VK_DOWN) {
+                this.move(0, 1);
+            }
         }    
+	},
+	move: function(dX, dY) {
+		//positive dX is move right 0 means same
+		this._centerX = Math.max(0,
+			Math.min(this._map.getWidth() - 1, this._centerX + dX));
+		// Positive dY means movement down
+        // negative means movement up
+        // 0 means none
+        this._centerY = Math.max(0,
+            Math.min(this._map.getHeight() - 1, this._centerY + dY));
 	}
 }
 
