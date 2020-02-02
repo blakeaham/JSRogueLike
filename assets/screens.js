@@ -1,5 +1,5 @@
 Game.Screen = {};
-
+//let;s see how fast I can get wihtthis new mechanical keyboard.
 //define start screen
 Game.Screen.startScreen = {
 	enter: function() { console.log('entered the start screen');},
